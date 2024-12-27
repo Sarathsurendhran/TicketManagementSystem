@@ -1,22 +1,25 @@
 import { useState } from "react";
-import { FaEye, FaEyeSlash, FaEnvelope, FaLock } from "react-icons/fa";
-import { Link } from "react-router-dom";
+import { FaEye, FaEyeSlash, FaUser, FaLock } from "react-icons/fa";
+import { Link, useNavigate } from "react-router-dom";
+import axiosInstance from "../utils/axiosConfig";
+import axios from "axios";
+import toast from "react-hot-toast";
 
 const LoginPage = () => {
   const [formData, setFormData] = useState({
-    email: "",
+    username: "",
     password: "",
   });
 
   const [errors, setErrors] = useState({});
   const [showPassword, setShowPassword] = useState(false);
 
+  const navigate = useNavigate();
+
   const validateForm = () => {
     const newErrors = {};
-    if (!formData.email.trim()) {
-      newErrors.email = "Email is required";
-    } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
-      newErrors.email = "Email is invalid";
+    if (!formData.username.trim()) {
+      newErrors.username = "username is required";
     }
     if (!formData.password) {
       newErrors.password = "Password is required";
@@ -26,12 +29,32 @@ const LoginPage = () => {
     return newErrors;
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     const formErrors = validateForm();
     if (Object.keys(formErrors).length === 0) {
-      console.log("Form submitted:", formData);
-      // Handle form submission
+      try {
+        const response = await axiosInstance.post("ticket/login/", formData);
+        if (response.status === 200) {
+          toast.success("Login Success");
+          localStorage.setItem("token", response.data.access)
+          localStorage.setItem("refreshToken", response.data.refresh)
+          navigate("/dashboard");
+        }
+        setFormData({
+          username: "",
+          password: "",
+        });
+      } catch (error) {
+        if (error.response && error.response.data) {
+          setErrors(error.response.data.detail);
+          toast.error(
+            error.response.data.detail || "An error occured during login"
+          );
+        } else {
+          toast.error("Network error. Please try again later.");
+        }
+      }
     } else {
       setErrors(formErrors);
     }
@@ -64,32 +87,33 @@ const LoginPage = () => {
           <div className="space-y-4">
             <div>
               <label
-                htmlFor="email"
+                htmlFor="username"
                 className="block text-sm font-body text-foreground"
               >
-                Email address
+                Full Name
               </label>
               <div className="mt-1 relative">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center">
-                  <FaEnvelope className="h-5 w-5 text-accent" />
+                  <FaUser className="h-5 w-5 text-accent" />
                 </div>
                 <input
-                  id="email"
-                  name="email"
-                  type="email"
+                  id="username"
+                  name="username"
+                  type="text"
                   required
                   className="appearance-none block w-full pl-10 pr-3 py-2 border border-input rounded-md shadow-sm placeholder-accent/60 focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent"
-                  placeholder="you@example.com"
-                  value={formData.email}
+                  placeholder="User Name"
+                  value={formData.username}
                   onChange={handleChange}
-                  aria-label="Email address"
+                  aria-label="Full Name"
                 />
               </div>
-              {errors.email && (
-                <p className="mt-2 text-sm text-destructive">{errors.email}</p>
+              {errors.username && (
+                <p className="mt-2 text-red-600 text-sm text-destructive">
+                  {errors.username}
+                </p>
               )}
             </div>
-
             <div>
               <label
                 htmlFor="password"
@@ -126,7 +150,7 @@ const LoginPage = () => {
                 </button>
               </div>
               {errors.password && (
-                <p className="mt-2 text-sm text-destructive">
+                <p className="mt-2 text-red-600 text-sm text-destructive">
                   {errors.password}
                 </p>
               )}

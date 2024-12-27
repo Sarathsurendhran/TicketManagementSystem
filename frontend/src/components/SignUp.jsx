@@ -1,23 +1,27 @@
 import { useState } from "react";
 import { FaEye, FaEyeSlash, FaUser, FaEnvelope, FaLock } from "react-icons/fa";
 import { Link } from "react-router-dom";
+import axiosInstance from "../utils/axiosConfig";
+import toast from "react-hot-toast";
+import { useNavigate } from "react-router-dom";
 
 const SignupPage = () => {
   const [formData, setFormData] = useState({
-    name: "",
+    username: "",
     email: "",
     password: "",
-    confirmPassword: "",
-    agreeToTerms: false,
+    confirm_password: "",
   });
 
   const [errors, setErrors] = useState({});
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
+  const navigate = useNavigate()
+
   const validateForm = () => {
     const newErrors = {};
-    if (!formData.name.trim()) newErrors.name = "Name is required";
+    if (!formData.username.trim()) newErrors.username = "Name is required";
     if (!formData.email.trim()) {
       newErrors.email = "Email is required";
     } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
@@ -28,33 +32,53 @@ const SignupPage = () => {
     } else if (formData.password.length < 6) {
       newErrors.password = "Password must be at least 6 characters";
     }
-    if (!formData.confirmPassword) {
-      newErrors.confirmPassword = "Please confirm your password";
-    } else if (formData.password !== formData.confirmPassword) {
-      newErrors.confirmPassword = "Passwords do not match";
-    }
-    if (!formData.agreeToTerms) {
-      newErrors.agreeToTerms = "You must agree to the terms and conditions";
+    if (!formData.confirm_password) {
+      newErrors.confirm_password = "Please confirm your password";
+    } else if (formData.password !== formData.confirm_password) {
+      newErrors.confirm_password = "Passwords do not match";
     }
     return newErrors;
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     const formErrors = validateForm();
     if (Object.keys(formErrors).length === 0) {
-      console.log("Form submitted:", formData);
-      // Handle form submission
+      try {
+        const response = await axiosInstance.post("ticket/register/", formData);
+        if (response.status === 201) {
+          toast.success("Registration successful! Please log in.");
+          navigate("/login")
+          
+        }
+        setFormData({
+          username: "",
+          email: "",
+          password: "",
+          confirm_password: "",
+        });
+      } catch (error) {
+        if (error.response && error.response.data) {
+          // Display backend errors at relevant fields or general messages
+          setErrors(error.response.data);
+          toast.error(
+            error.response.data.detail ||
+              "An error occurred during registration."
+          );
+        } else {
+          toast.error("Network error. Please try again later.");
+        }
+      }
     } else {
       setErrors(formErrors);
     }
   };
 
   const handleChange = (e) => {
-    const { name, value, type, checked } = e.target;
+    const { name, value } = e.target;
     setFormData((prev) => ({
       ...prev,
-      [name]: type === "checkbox" ? checked : value,
+      [name]: value,
     }));
     if (errors[name]) {
       setErrors((prev) => ({ ...prev, [name]: "" }));
@@ -77,7 +101,7 @@ const SignupPage = () => {
           <div className="space-y-4">
             <div>
               <label
-                htmlFor="name"
+                htmlFor="username"
                 className="block text-sm font-body text-foreground"
               >
                 Full Name
@@ -87,19 +111,21 @@ const SignupPage = () => {
                   <FaUser className="h-5 w-5 text-accent" />
                 </div>
                 <input
-                  id="name"
-                  name="name"
+                  id="username"
+                  name="username"
                   type="text"
                   required
                   className="appearance-none block w-full pl-10 pr-3 py-2 border border-input rounded-md shadow-sm placeholder-accent/60 focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent"
-                  placeholder="John Doe"
-                  value={formData.name}
+                  placeholder="User Name"
+                  value={formData.username}
                   onChange={handleChange}
                   aria-label="Full Name"
                 />
               </div>
-              {errors.name && (
-                <p className="mt-2 text-sm text-destructive">{errors.name}</p>
+              {errors.username && (
+                <p className="mt-2 text-red-600 text-sm text-destructive">
+                  {errors.username}
+                </p>
               )}
             </div>
 
@@ -127,7 +153,9 @@ const SignupPage = () => {
                 />
               </div>
               {errors.email && (
-                <p className="mt-2 text-sm text-destructive">{errors.email}</p>
+                <p className="mt-2 text-red-600 text-sm text-destructive">
+                  {errors.email}
+                </p>
               )}
             </div>
 
@@ -167,7 +195,7 @@ const SignupPage = () => {
                 </button>
               </div>
               {errors.password && (
-                <p className="mt-2 text-sm text-destructive">
+                <p className="mt-2 text-red-600 text-sm text-destructive">
                   {errors.password}
                 </p>
               )}
@@ -175,7 +203,7 @@ const SignupPage = () => {
 
             <div>
               <label
-                htmlFor="confirmPassword"
+                htmlFor="confirm_password"
                 className="block text-sm font-body text-foreground"
               >
                 Confirm Password
@@ -185,13 +213,13 @@ const SignupPage = () => {
                   <FaLock className="h-5 w-5 text-accent" />
                 </div>
                 <input
-                  id="confirmPassword"
-                  name="confirmPassword"
+                  id="confirm_password"
+                  name="confirm_password"
                   type={showConfirmPassword ? "text" : "password"}
                   required
                   className="appearance-none block w-full pl-10 pr-10 py-2 border border-input rounded-md shadow-sm placeholder-accent/60 focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent"
                   placeholder="********"
-                  value={formData.confirmPassword}
+                  value={formData.confirm_password}
                   onChange={handleChange}
                   aria-label="Confirm password"
                 />
@@ -208,18 +236,12 @@ const SignupPage = () => {
                   )}
                 </button>
               </div>
-              {errors.confirmPassword && (
-                <p className="mt-2 text-sm text-destructive">
-                  {errors.confirmPassword}
+              {errors.confirm_password && (
+                <p className="mt-2 text-red-600 text-sm text-destructive">
+                  {errors.confirm_password}
                 </p>
               )}
             </div>
-
-            {errors.agreeToTerms && (
-              <p className="mt-2 text-sm text-destructive">
-                {errors.agreeToTerms}
-              </p>
-            )}
           </div>
 
           <button

@@ -7,6 +7,7 @@ import {
   FaSignOutAlt,
   FaExclamationCircle,
 } from "react-icons/fa";
+import CreateTicketModal from "./CreateTicketModal";
 
 const TicketManagement = () => {
   const [tickets, setTickets] = useState([
@@ -135,12 +136,8 @@ const TicketManagement = () => {
             <option value="Medium">Medium</option>
             <option value="Low">Low</option>
           </select>
-          <button
-            onClick={() => setShowCreateModal(true)}
-            className="flex items-center gap-2 px-4 py-2 bg-primary text-primary-foreground rounded-sm hover:bg-primary/90 transition-colors"
-          >
-            <FaPlus /> Create Ticket
-          </button>
+
+          <CreateTicketModal />
         </div>
 
         {/* Ticket List */}

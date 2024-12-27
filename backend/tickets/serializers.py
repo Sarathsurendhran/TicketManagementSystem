@@ -1,5 +1,6 @@
 from rest_framework import serializers
 from django.contrib.auth.models import User
+from .models import Tickets
 
 
 class UserRegisterSerializer(serializers.ModelSerializer):
@@ -23,3 +24,12 @@ class UserRegisterSerializer(serializers.ModelSerializer):
         validate_data.pop("confirm_password")
         user = User.objects.create_user(**validate_data)
         return user
+
+
+
+
+
+class TicketSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Tickets
+        fields = '__all__'
