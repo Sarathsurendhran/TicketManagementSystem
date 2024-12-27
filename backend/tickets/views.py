@@ -16,7 +16,6 @@ class UserRegistrationView(generics.CreateAPIView):
 
 
 class TicketCreateView(generics.CreateAPIView):
-    queryset = Tickets.objects.all()
     serializer_class = TicketSerializer
     permission_classes = [permissions.IsAuthenticated]
 

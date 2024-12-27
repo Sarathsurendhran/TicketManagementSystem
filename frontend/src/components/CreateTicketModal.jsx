@@ -2,7 +2,8 @@ import { useState } from "react";
 import { IoClose } from "react-icons/io5";
 import { FaExclamationTriangle, FaPlus } from "react-icons/fa";
 
-const CreateTicketModal = ({ buttonLabel = "Open Modal", onCreateTicket }) => {
+
+const CreateTicketModal = () => {
   const [showModal, setShowModal] = useState(false);
   const [errors, setErrors] = useState({});
   const [newTicket, setNewTicket] = useState({
@@ -23,7 +24,7 @@ const CreateTicketModal = ({ buttonLabel = "Open Modal", onCreateTicket }) => {
     setNewTicket({ title: "", description: "", priority: "low" });
   };
 
-  const onSubmit = (e) => {
+  const onSubmit = async (e) => {
     e.preventDefault();
     const newErrors = {};
     if (!newTicket.title) newErrors.title = "Title is required";
@@ -34,10 +35,13 @@ const CreateTicketModal = ({ buttonLabel = "Open Modal", onCreateTicket }) => {
       setErrors(newErrors);
       return;
     }
-
-    if (onCreateTicket) {
-      onCreateTicket(newTicket);
+    try {
+      const response = await 
+a
+    } catch (error) {
+      
     }
+
     closeModal();
   };
 

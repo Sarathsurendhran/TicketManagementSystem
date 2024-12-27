@@ -13,6 +13,6 @@ urlpatterns = [
     path("login/", TokenObtainPairView.as_view()),
     path("token/refresh/", TokenRefreshView.as_view()),
     path('tickets/', TicketListView.as_view()),
-    path('tickets/<int:pk>/', TicketDetailView.as_view()),
-    path('tickets/new/', TicketCreateView.as_view()),
+    path('ticket/<int:pk>/', TicketDetailView.as_view()),
+    path('ticket/new/', TicketCreateView.as_view()),
 ]
