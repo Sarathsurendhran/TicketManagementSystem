@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     "corsheaders",
     'tickets',
+    'admin_management',
 ]
 
 MIDDLEWARE = [

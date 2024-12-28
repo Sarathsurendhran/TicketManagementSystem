@@ -59,7 +59,6 @@ const SignupPage = () => {
         });
       } catch (error) {
         if (error.response && error.response.data) {
-          // Display backend errors at relevant fields or general messages
           setErrors(error.response.data);
           toast.error(
             error.response.data.detail ||

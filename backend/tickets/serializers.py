@@ -3,6 +3,7 @@ from django.contrib.auth.models import User
 from .models import Tickets
 
 
+
 class UserRegisterSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True, required=True, min_length=8)
     confirm_password = serializers.CharField(
@@ -26,10 +27,8 @@ class UserRegisterSerializer(serializers.ModelSerializer):
         return user
 
 
-
-
-
 class TicketSerializer(serializers.ModelSerializer):
     class Meta:
         model = Tickets
-        fields = '__all__'
+        fields = ["id", "title", "description", "priority", "status", "created_at"]  
+        read_only_fields = ["id", "user"]  

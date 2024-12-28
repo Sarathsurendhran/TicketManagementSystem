@@ -1,12 +1,11 @@
 import { useEffect, useState } from "react";
-import Header from "./Header";
+import Header from "../Header";
 import { FaSearch, FaPlus } from "react-icons/fa";
-import axiosInstance from "../utils/axiosConfig";
+import axiosInstance from "../../utils/axiosConfig";
 import moment from "moment";
-import CreateTicketModal from "./CreateTicketModal";
-import TicketDetailsModal from "./TicketsDetailsModal";
+import TicketDetailsModal from "../TicketsDetailsModal";
 
-const TicketManagement = () => {
+const AdminTicketManagement = () => {
   const [tickets, setTickets] = useState([]);
   const [pagination, setPagination] = useState({ next: null, previous: null });
   const [statusFilter, setStatusFilter] = useState("All");
@@ -17,7 +16,7 @@ const TicketManagement = () => {
   const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
 
   // Fetch tickets data
-  const fetchTickets = async (url = "ticket/get-tickets/") => {
+  const fetchTickets = async (url = "admin/tickets/") => {
     setIsLoading(true);
     try {
       const response = await axiosInstance.get(url);
@@ -50,16 +49,31 @@ const TicketManagement = () => {
   };
 
   // Filter tickets
-  const filteredTickets = tickets.filter((ticket) => {
-    const matchesStatus =
-      statusFilter === "All" || ticket.status === statusFilter;
-    const matchesPriority =
-      priorityFilter === "All" || ticket.priority === priorityFilter;
-    const matchesSearch = ticket.title
-      .toLowerCase()
-      .includes(searchQuery.toLowerCase());
-    return matchesStatus && matchesPriority && matchesSearch;
-  });
+  // const filteredTickets = tickets.filter((ticket) => {
+  //   const matchesStatus =
+  //     statusFilter === "All" || ticket.status === statusFilter;
+  //   const matchesPriority =
+  //     priorityFilter === "All" || ticket.priority === priorityFilter;
+  //   const matchesSearch = ticket.title
+  //     .toLowerCase()
+  //     .includes(searchQuery.toLowerCase());
+  //   return matchesStatus && matchesPriority && matchesSearch;
+  // });
+
+  const filteredTickets = Array.isArray(tickets)
+  ? tickets.filter((ticket) => {
+      const matchesStatus =
+        statusFilter === "All" || ticket.status === statusFilter;
+      const matchesPriority =
+        priorityFilter === "All" || ticket.priority === priorityFilter;
+      const matchesSearch = ticket.title
+        ? ticket.title.toLowerCase().includes(searchQuery.toLowerCase())
+        : false;
+      return matchesStatus && matchesPriority && matchesSearch;
+    })
+  : [];
+
+  
 
   // Priority color helper
   const getPriorityColor = (priority) => {
@@ -126,7 +140,6 @@ const TicketManagement = () => {
             <option value="medium">Medium</option>
             <option value="low">Low</option>
           </select>
-          <CreateTicketModal fetchTickets={fetchTickets} />
         </div>
 
         {/* Ticket List */}
@@ -142,6 +155,8 @@ const TicketManagement = () => {
                   <th className="px-6 py-3 text-left">Priority</th>
                   <th className="px-6 py-3 text-left">Status</th>
                   <th className="px-6 py-3 text-left">Created At</th>
+                  <th className="px-6 py-3 text-left">Username</th>
+                  <th className="px-6 py-3 text-left">Email</th>
                   <th className="px-6 py-3 text-left">Details</th>
                 </tr>
               </thead>
@@ -161,6 +176,8 @@ const TicketManagement = () => {
                     <td className="px-6 py-4">
                       {moment(ticket.created_at).format("YYYY-MM-DD HH:mm")}
                     </td>
+                    <td className="px-6 py-4">{ticket.username}</td>
+                    <td className="px-6 py-4">{ticket.email}</td>
                     <td className="px-6 py-4">
                       {" "}
                       <button
@@ -213,4 +230,4 @@ const TicketManagement = () => {
   );
 };
 
-export default TicketManagement;
+export default AdminTicketManagement;

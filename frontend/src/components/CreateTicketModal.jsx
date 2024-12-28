@@ -1,9 +1,10 @@
 import { useState } from "react";
 import { IoClose } from "react-icons/io5";
 import { FaExclamationTriangle, FaPlus } from "react-icons/fa";
+import axiosInstance from "../utils/axiosConfig";
+import toast from "react-hot-toast";
 
-
-const CreateTicketModal = () => {
+const CreateTicketModal = ({ fetchTickets }) => {
   const [showModal, setShowModal] = useState(false);
   const [errors, setErrors] = useState({});
   const [newTicket, setNewTicket] = useState({
@@ -36,20 +37,31 @@ const CreateTicketModal = () => {
       return;
     }
     try {
-      const response = await 
-a
+      const response = await axiosInstance.post(
+        "ticket/create-new-ticket/",
+        newTicket
+      );
+      if (response.status === 201) {
+        toast.success("Ticket Created");
+        fetchTickets();
+        closeModal();
+      }
     } catch (error) {
-      
+      if (error.response && error.response.data) {
+        setErrors(error.response.data);
+        toast.error(error.response.data.detail || "An error occurred.");
+      } else {
+        toast.error("Network error. Please try again later.");
+      }
     }
-
-    closeModal();
+    // closeModal();
   };
 
   return (
     <div>
       <button
         onClick={() => setShowModal(true)}
-        className="flex items-center gap-2 px-4 py-2 bg-primary text-primary-foreground rounded-sm hover:bg-primary/90 transition-colors"
+        className="flex items-center gap-2 text-white px-4 py-2 bg-primary text-primary-foreground rounded-sm hover:bg-primary/90 transition-colors"
       >
         <FaPlus /> Create Ticket
       </button>
