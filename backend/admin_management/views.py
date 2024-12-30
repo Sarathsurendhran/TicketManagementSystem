@@ -10,12 +10,21 @@ from rest_framework.response import Response
 
 
 class CustomPagination(PageNumberPagination):
+    """
+    Custom pagination class for controlling page size and limits.
+    """
+
     page_size = 5
     page_size_query_param = "page_size"
     max_page_size = 10
 
 
 class GetTicketsView(generics.ListAPIView):
+    """
+    API view to retrieve a paginated list of all tickets.
+    Accessible only by superusers.
+    """
+
     serializer_class = TicketSerializer
     queryset = Tickets.objects.all()
     permission_classes = [IsAuthenticated, IsSuperUser]
@@ -23,9 +32,28 @@ class GetTicketsView(generics.ListAPIView):
 
 
 class UpdateTicketStatus(APIView):
+    """
+    API view to update the status of a specific ticket.
+    Accessible only by superusers.
+    """
+
     permission_classes = [IsAuthenticated, IsSuperUser]
 
     def patch(self, request, ticket_id):
+        """
+        Handles PATCH requests to update the ticket status.
+
+        Args:
+            request: The HTTP request containing the status data.
+            ticket_id: The ID of the ticket to update.
+
+        Raises:
+            NotFound: If the ticket with the given ID does not exist.
+            ValidationError: If the provided status is invalid.
+
+        Returns:
+            Response: A success message with the updated status.
+        """
         try:
             ticket = Tickets.objects.get(id=ticket_id)
         except Tickets.DoesNotExist:

@@ -32,20 +32,33 @@ class UserRegistrationView(generics.CreateAPIView):
 
 
 class TicketCreateView(generics.CreateAPIView):
+    """
+    API view to create a new ticket for the authenticated user.
+    """
+
     serializer_class = TicketSerializer
     permission_classes = [permissions.IsAuthenticated]
 
     def perform_create(self, serializer):
+        """
+        Associates the created ticket with the logged-in user.
+        """
         serializer.save(user=self.request.user)
 
 
 class TicketListView(generics.ListAPIView):
+    """
+    API view to list tickets for the authenticated user.
+    """
+
     serializer_class = TicketSerializer
     permission_classes = [permissions.IsAuthenticated]
     pagination_class = TicketPagination
 
     def get_queryset(self):
-        # Fetch all tickets for the logged-in user
+        """
+        Returns tickets for the logged-in user, ordered by most recent.
+        """
         return (
             Tickets.objects.filter(user=self.request.user)
             .select_related("user")
@@ -55,7 +68,7 @@ class TicketListView(generics.ListAPIView):
 
 class TicketDetailView(generics.RetrieveAPIView):
     """
-    Optimized API endpoint to retrieve a single ticket.
+    API endpoint to retrieve a single ticket.
     """
 
     serializer_class = TicketSerializer
