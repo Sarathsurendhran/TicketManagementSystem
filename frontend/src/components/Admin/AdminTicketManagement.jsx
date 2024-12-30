@@ -1,9 +1,10 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import Header from "../Header";
 import { FaSearch, FaPlus } from "react-icons/fa";
 import axiosInstance from "../../utils/axiosConfig";
 import moment from "moment";
-import TicketDetailsModal from "../TicketsDetailsModal";
+import AdminTicketDetailsModal from "./AdminTaskDetailsModal";
 
 const AdminTicketManagement = () => {
   const [tickets, setTickets] = useState([]);
@@ -15,13 +16,15 @@ const AdminTicketManagement = () => {
   const [selectedTicketId, setSelectedTicketId] = useState(null);
   const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
 
+
   // Fetch tickets data
-  const fetchTickets = async (url = "admin/tickets/") => {
+  const fetchTickets = async (url = "admin-side/get-tickets/") => {
     setIsLoading(true);
     try {
       const response = await axiosInstance.get(url);
       if (response.status === 200) {
-        setTickets(response.data.results); // Use the 'results' array
+        console.log("response.data", response.data)
+        setTickets(response.data.results);
         setPagination({
           next: response.data.next,
           previous: response.data.previous,
@@ -33,6 +36,7 @@ const AdminTicketManagement = () => {
       setIsLoading(false);
     }
   };
+  console.log(tickets)
 
   // Initial fetch
   useEffect(() => {
@@ -61,19 +65,17 @@ const AdminTicketManagement = () => {
   // });
 
   const filteredTickets = Array.isArray(tickets)
-  ? tickets.filter((ticket) => {
-      const matchesStatus =
-        statusFilter === "All" || ticket.status === statusFilter;
-      const matchesPriority =
-        priorityFilter === "All" || ticket.priority === priorityFilter;
-      const matchesSearch = ticket.title
-        ? ticket.title.toLowerCase().includes(searchQuery.toLowerCase())
-        : false;
-      return matchesStatus && matchesPriority && matchesSearch;
-    })
-  : [];
-
-  
+    ? tickets.filter((ticket) => {
+        const matchesStatus =
+          statusFilter === "All" || ticket.status === statusFilter;
+        const matchesPriority =
+          priorityFilter === "All" || ticket.priority === priorityFilter;
+        const matchesSearch = ticket.title
+          ? ticket.title.toLowerCase().includes(searchQuery.toLowerCase())
+          : false;
+        return matchesStatus && matchesPriority && matchesSearch;
+      })
+    : [];
 
   // Priority color helper
   const getPriorityColor = (priority) => {
@@ -220,7 +222,7 @@ const AdminTicketManagement = () => {
       </div>
 
       {/* Ticket Details Modal */}
-      <TicketDetailsModal
+      <AdminTicketDetailsModal
         fetchTickets={fetchTickets}
         isOpen={isDetailsModalOpen}
         ticketId={selectedTicketId}

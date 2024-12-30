@@ -4,6 +4,9 @@ import { Link, useNavigate } from "react-router-dom";
 import axiosInstance from "../utils/axiosConfig";
 import axios from "axios";
 import toast from "react-hot-toast";
+import { jwtDecode } from "jwt-decode";
+import { setUser } from "../Redux/AuthenticatedUserSlice";
+import { useDispatch } from "react-redux";
 
 const LoginPage = () => {
   const [formData, setFormData] = useState({
@@ -15,6 +18,7 @@ const LoginPage = () => {
   const [showPassword, setShowPassword] = useState(false);
 
   const navigate = useNavigate();
+  const dispatch = useDispatch();
 
   const validateForm = () => {
     const newErrors = {};
@@ -37,9 +41,25 @@ const LoginPage = () => {
         const response = await axiosInstance.post("ticket/login/", formData);
         if (response.status === 200) {
           toast.success("Login Success");
-          localStorage.setItem("token", response.data.access)
-          localStorage.setItem("refreshToken", response.data.refresh)
-          navigate("/dashboard");
+          localStorage.setItem("token", response.data.access);
+          localStorage.setItem("refreshToken", response.data.refresh);
+
+          const decodedToken = jwtDecode(response.data.access);
+
+          dispatch(
+            setUser({
+              username: decodedToken.username,
+              email: decodedToken.email,
+              isAdmin: decodedToken.is_admin,
+            })
+          );
+
+          // Check if the user is an admin and navigate accordingly
+          if (decodedToken.is_admin) {
+            navigate("/admin");
+          } else {
+            navigate("/dashboard");
+          }
         }
         setFormData({
           username: "",

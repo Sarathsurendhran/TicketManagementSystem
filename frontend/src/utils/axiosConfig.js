@@ -77,11 +77,14 @@ axiosInstance.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response && error.response.status === 401) {
-      if (!error.config.url.includes("token/") && !error.config.url.includes("login")) {
+      if (
+        !error.config.url.includes("token/") &&
+        !error.config.url.includes("login")
+      ) {
         localStorage.removeItem("token");
         window.location.href = "/login";
       }
-    } 
+    }
     if (error.response.data) {
       console.log("error.response.data", error.response.data);
       const message = error.response.data.title

@@ -23,4 +23,5 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('ticket/', include('tickets.urls')),
     path("token/refresh/", TokenRefreshView.as_view()),
+    path("admin-side/",include('admin_management.urls')),
 ]

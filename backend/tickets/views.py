@@ -7,6 +7,19 @@ from django.shortcuts import get_object_or_404
 from .pagination import TicketPagination
 from rest_framework.exceptions import ValidationError
 from rest_framework.response import Response
+from rest_framework_simplejwt.views import TokenObtainPairView
+from .serializers import CustomTokenObtainPairSerializer
+
+
+class CustomTokenObtainPairView(TokenObtainPairView):
+    """
+    Custom view for obtaining JWT tokens with additional claims.
+
+    This view uses the `CustomTokenObtainPairSerializer` to add
+    the `is_admin` claim to the token payload.
+    """
+
+    serializer_class = CustomTokenObtainPairSerializer
 
 
 class UserRegistrationView(generics.CreateAPIView):
@@ -97,8 +110,3 @@ class TicketDeleteView(generics.DestroyAPIView):
                 {"error": f"An error occurred: {str(e)}"},
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR,
             )
-
-
-
-
-

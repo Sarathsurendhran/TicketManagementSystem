@@ -8,7 +8,7 @@ from tickets.views import *
 
 urlpatterns = [
     path("register/", UserRegistrationView.as_view()),
-    path("login/", TokenObtainPairView.as_view()),
+    path("login/", CustomTokenObtainPairView.as_view()),
     path("get-tickets/", TicketListView.as_view()),
     path("get-ticket-details/<int:pk>/", TicketDetailView.as_view()),
     path("create-new-ticket/", TicketCreateView.as_view()),
